@@ -34,13 +34,15 @@ function guessArticle(word) {
   return null;
 }
 
-// Same word all day, changes each day
+// Same word all day — uses the real date so it changes every midnight
 async function getTodaysWord() {
-  const words     = await fetchWordList();
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-  const word      = words[dayOfYear % words.length];
-  const english   = await translateToEnglish(word);
-  const article   = guessArticle(word);
+  const words = await fetchWordList();
+  const now   = new Date();
+  // Seed = YYYYMMDD so it's stable all day but different every day
+  const seed  = parseInt(`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`);
+  const word  = words[seed % words.length];
+  const english = await translateToEnglish(word);
+  const article = guessArticle(word);
   return { word, english, article };
 }
 
